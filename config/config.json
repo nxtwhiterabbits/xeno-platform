@@ -1,1 +1,2 @@
 const XENO_API = "https://companion-roger-earth-pieces.trycloudflare.com";
+const XID = "XID001";
