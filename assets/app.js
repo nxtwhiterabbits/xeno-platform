@@ -6,12 +6,12 @@ let XID = "";
 ========================= */
 async function loadConfig() {
     try {
-        console.log("Loading config...");
+        console.log("[XENO] Loading config...");
 
         const res = await fetch("../config/config.json");
         const config = await res.json();
 
-        console.log("CONFIG LOADED:", config);
+        console.log("[XENO] Config:", config);
 
         API_URL = config.API_URL;
         XID = config.XID;
@@ -21,32 +21,40 @@ async function loadConfig() {
         loadBalance();
 
     } catch (err) {
-        console.error("Config load error:", err);
+        console.error("[XENO] Config error:", err);
     }
 }
 
 /* =========================
-   LOAD BALANCE
+   LOAD BALANCE (FIXED)
 ========================= */
 async function loadBalance() {
     try {
+        console.log("[XENO] Fetch balance...");
+
         const res = await fetch(`${API_URL}/api/balance.php?xid=${XID}`);
         const data = await res.json();
 
-        console.log("BALANCE:", data);
+        console.log("[XENO] Balance response:", data);
 
-        document.getElementById("balance").innerText = data.balance;
+        // SAFE READ (IMPORTANT FIX)
+        const balance = data.balance ?? 0;
+
+        document.getElementById("balance").innerText = balance;
 
     } catch (err) {
-        console.error("Balance error:", err);
+        console.error("[XENO] Balance error:", err);
+        document.getElementById("balance").innerText = "0";
     }
 }
 
 /* =========================
-   DEPOSIT
+   DEPOSIT (FIXED)
 ========================= */
 async function deposit(amount) {
     try {
+        console.log("[XENO] Deposit:", amount);
+
         await fetch(`${API_URL}/api/deposit.php`, {
             method: "POST",
             headers: {
@@ -55,18 +63,21 @@ async function deposit(amount) {
             body: `xid=${XID}&amount=${amount}`
         });
 
-        loadBalance();
+        // refresh balance AFTER update
+        setTimeout(loadBalance, 300);
 
     } catch (err) {
-        console.error("Deposit error:", err);
+        console.error("[XENO] Deposit error:", err);
     }
 }
 
 /* =========================
-   WITHDRAW
+   WITHDRAW (FIXED)
 ========================= */
 async function withdraw(amount) {
     try {
+        console.log("[XENO] Withdraw:", amount);
+
         await fetch(`${API_URL}/api/withdraw.php`, {
             method: "POST",
             headers: {
@@ -75,10 +86,11 @@ async function withdraw(amount) {
             body: `xid=${XID}&amount=${amount}`
         });
 
-        loadBalance();
+        // refresh balance AFTER update
+        setTimeout(loadBalance, 300);
 
     } catch (err) {
-        console.error("Withdraw error:", err);
+        console.error("[XENO] Withdraw error:", err);
     }
 }
 
