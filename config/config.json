@@ -1,2 +1,4 @@
-const API_URL = "https://average-southampton-sponsor-musicians.trycloudflare.com";
-const XID = "XID001";
+{
+  "API_URL": "https://average-southampton-sponsor-musicians.trycloudflare.com",
+  "XID": "XID001"
+}
