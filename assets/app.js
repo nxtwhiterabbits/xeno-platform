@@ -1,5 +1,6 @@
 let API_URL = "";
 let XID = "";
+console.log("APP JS LOADED");
 
 /* =========================
    LOAD CONFIG
