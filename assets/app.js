@@ -1,47 +1,88 @@
 let API_URL = "";
 let XID = "";
 
+/* =========================
+   LOAD CONFIG
+========================= */
 async function loadConfig() {
-    const res = await fetch("../config/config.json"); // IMPORTANT
-    const config = await res.json();
+    try {
+        console.log("Loading config...");
 
-    API_URL = config.API_URL;
-    XID = config.XID;
+        const res = await fetch("../config/config.json");
+        const config = await res.json();
 
-    document.getElementById("xid").innerText = XID;
+        console.log("CONFIG LOADED:", config);
 
-    loadBalance();
+        API_URL = config.API_URL;
+        XID = config.XID;
+
+        document.getElementById("xid").innerText = XID;
+
+        loadBalance();
+
+    } catch (err) {
+        console.error("Config load error:", err);
+    }
 }
 
+/* =========================
+   LOAD BALANCE
+========================= */
 async function loadBalance() {
-    const res = await fetch(`${API_URL}/api/balance.php?xid=${XID}`);
-    const data = await res.json();
+    try {
+        const res = await fetch(`${API_URL}/api/balance.php?xid=${XID}`);
+        const data = await res.json();
 
-    document.getElementById("balance").innerText = data.balance;
+        console.log("BALANCE:", data);
+
+        document.getElementById("balance").innerText = data.balance;
+
+    } catch (err) {
+        console.error("Balance error:", err);
+    }
 }
 
+/* =========================
+   DEPOSIT
+========================= */
 async function deposit(amount) {
-    await fetch(`${API_URL}/api/deposit.php`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: `xid=${XID}&amount=${amount}`
-    });
+    try {
+        await fetch(`${API_URL}/api/deposit.php`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: `xid=${XID}&amount=${amount}`
+        });
 
-    loadBalance();
+        loadBalance();
+
+    } catch (err) {
+        console.error("Deposit error:", err);
+    }
 }
 
+/* =========================
+   WITHDRAW
+========================= */
 async function withdraw(amount) {
-    await fetch(`${API_URL}/api/withdraw.php`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: `xid=${XID}&amount=${amount}`
-    });
+    try {
+        await fetch(`${API_URL}/api/withdraw.php`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: `xid=${XID}&amount=${amount}`
+        });
 
-    loadBalance();
+        loadBalance();
+
+    } catch (err) {
+        console.error("Withdraw error:", err);
+    }
 }
 
+/* =========================
+   START SYSTEM
+========================= */
 loadConfig();
