@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Xeno Wallet</title>
+  <title>XENO Wallet</title>
 </head>
 <body>
 
 <h2>XENO WALLET</h2>
 
-<p>XID: XID-001</p>
-<p>Balance: 0 XENO</p>
+<p>XID: <span id="xid">-</span></p>
+<p>Balance: <span id="balance">0</span> XENO</p>
 
-<button>Deposit</button>
-<button>Withdraw</button>
+<button onclick="deposit(100)">Deposit</button>
+<button onclick="withdraw(50)">Withdraw</button>
+
+<script src="../assets/app.js"></script>
 
 </body>
 </html>
