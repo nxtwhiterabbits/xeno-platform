@@ -15,7 +15,13 @@
 <p id="msg"></p>
 
 <script>
-const API_URL = "https://average-southampton-sponsor-musicians.trycloudflare.com";
+let API_URL = "";
+
+async function loadConfig() {
+    const res = await fetch("../config/config.json");
+    const config = await res.json();
+    API_URL = config.API_URL;
+}
 
 async function login() {
     const u = document.getElementById("username").value;
@@ -31,12 +37,11 @@ async function login() {
 
     if (data.status === "success") {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", data.username);
         window.location.href = "wallet.html";
-    } else {
-        document.getElementById("msg").innerText = data.message;
     }
 }
+
+loadConfig();
 </script>
 
 </body>
