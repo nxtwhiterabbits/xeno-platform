@@ -55,7 +55,7 @@ async function login() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", data.username);
 
-        window.location.href = "wallet.html";
+        window.location.href = "/app/wallet.html";
     } else {
         document.getElementById("msg").innerText = data.message;
     }
