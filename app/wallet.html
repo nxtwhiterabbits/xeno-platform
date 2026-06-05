@@ -23,24 +23,49 @@
 
 <script>
 let API_URL = "";
-let token = localStorage.getItem("token");
+let token = null;
+let user = null;
 
+/* =========================
+   LOAD CONFIG + SESSION
+========================= */
 async function loadConfig() {
     const res = await fetch("../config/config.json");
     const config = await res.json();
 
     API_URL = config.API_URL;
 
+    token = localStorage.getItem("token");
+    user = localStorage.getItem("user");
+
+    if (!token) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    document.getElementById("user").innerText = user || "-";
+
     loadBalance();
 }
 
+/* =========================
+   LOAD BALANCE
+========================= */
 async function loadBalance() {
     const res = await fetch(API_URL + "/api/balance.php?token=" + token);
     const data = await res.json();
 
-    document.getElementById("balance").innerText = data.balance;
+    if (data.status === "success") {
+        document.getElementById("balance").innerText = data.balance;
+        document.getElementById("user").innerText = data.username;
+    } else {
+        document.getElementById("balance").innerText = "0";
+    }
 }
 
+/* =========================
+   DEPOSIT
+========================= */
 async function deposit() {
     const amount = document.getElementById("amount").value;
 
@@ -53,6 +78,9 @@ async function deposit() {
     loadBalance();
 }
 
+/* =========================
+   WITHDRAW
+========================= */
 async function withdraw() {
     const amount = document.getElementById("amount").value;
 
@@ -65,8 +93,19 @@ async function withdraw() {
     loadBalance();
 }
 
+/* =========================
+   LOGOUT
+========================= */
+function logout() {
+    localStorage.clear();
+    window.location.href = "login.html";
+}
+
+/* =========================
+   START
+========================= */
 loadConfig();
 </script>
-  
+
 </body>
 </html>
