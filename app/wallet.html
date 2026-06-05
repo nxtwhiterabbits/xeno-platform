@@ -1,86 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>XENO Wallet</title>
-
-  <style>
-    body {
-      font-family: Arial;
-      background: #0b0f1a;
-      color: white;
-      text-align: center;
-    }
-
-    .box {
-      max-width: 420px;
-      margin: auto;
-      padding: 20px;
-    }
-
-    input, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      border-radius: 10px;
-      border: none;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    .dep { background: #00ff88; }
-    .wd { background: #ff4d4d; color: white; }
-  </style>
+  <title>XENO WALLET</title>
 </head>
-
 <body>
 
-<div class="box">
+<h2>XENO WALLET</h2>
 
-  <h2>💎 XENO WALLET</h2>
+<p>User: <span id="user">-</span></p>
+<p>Balance: <span id="balance">0</span></p>
 
-  <p>User: <span id="user">-</span></p>
-  <h1>$ <span id="balance">0</span></h1>
+<input id="amount" type="number" placeholder="amount">
 
-  <input id="amount" type="number" placeholder="Amount">
+<button onclick="deposit()">Deposit</button>
+<button onclick="withdraw()">Withdraw</button>
 
-  <button class="dep" onclick="deposit()">Deposit</button>
-  <button class="wd" onclick="withdraw()">Withdraw</button>
-
-  <button onclick="logout()">Logout</button>
-
-</div>
+<button onclick="logout()">Logout</button>
 
 <script>
 let API_URL = "";
-let token = localStorage.getItem("token");
-let user = localStorage.getItem("user");
+const token = localStorage.getItem("token");
+const user = localStorage.getItem("user");
 
 /* =========================
-   LOAD CONFIG (WAJIB BETUL)
+   GUARD (AUTO LOGIN CHECK)
+========================= */
+if (!token) {
+    window.location.href = "./login.html";
+}
+
+/* =========================
+   LOAD CONFIG
 ========================= */
 async function loadConfig() {
-    try {
-        const res = await fetch("./config/config.json");
-        const config = await res.json();
+    const res = await fetch("../config/config.json");
+    const config = await res.json();
 
-        API_URL = config.API_URL;
+    API_URL = config.API_URL;
 
-        console.log("API LOADED:", API_URL);
+    document.getElementById("user").innerText = user;
 
-        if (!token) {
-            window.location.href = "login.html";
-            return;
-        }
-
-        document.getElementById("user").innerText = user;
-
-        loadBalance();
-
-    } catch (err) {
-        console.log("CONFIG ERROR", err);
-    }
+    loadBalance();
 }
 
 /* =========================
@@ -130,10 +90,9 @@ async function withdraw() {
 ========================= */
 function logout() {
     localStorage.clear();
-    window.location.href = "login.html";
+    window.location.href = "./login.html";
 }
 
-/* START */
 loadConfig();
 </script>
 
