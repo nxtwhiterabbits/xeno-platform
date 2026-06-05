@@ -10,38 +10,47 @@
 <input id="username" placeholder="username"><br>
 <input id="password" type="password" placeholder="password"><br>
 
-<button onclick="login()">LOGIN</button>
+<button onclick="login()" id="btn">LOGIN</button>
 
 <p id="msg"></p>
 
 <script>
 let API_URL = "";
+let ready = false;
 
 /* =========================
-   LOAD CONFIG FIRST
+   LOAD CONFIG (SAFE)
 ========================= */
 async function loadConfig() {
-    const res = await fetch("https://nxtwhiterabbits.github.io/xeno-platform/config/config.json")
-    const config = await res.json();
-    API_URL = config.API_URL;
+    try {
+        const res = await fetch("https://nxtwhiterabbits.github.io/xeno-platform/config/config.json");
+        const config = await res.json();
 
-    console.log("API READY:", API_URL);
+        API_URL = config.API_URL;
+        ready = true;
+
+        console.log("API READY:", API_URL);
+
+    } catch (err) {
+        console.log("CONFIG FAIL", err);
+        document.getElementById("msg").innerText = "Config error";
+    }
 }
 
 /* =========================
-   LOGIN FUNCTION (GLOBAL)
+   LOGIN
 ========================= */
 async function login() {
 
-    console.log("BUTTON CLICKED");
+    console.log("CLICKED");
+
+    if (!ready) {
+        document.getElementById("msg").innerText = "System loading...";
+        return;
+    }
 
     const u = document.getElementById("username").value;
     const p = document.getElementById("password").value;
-
-    if (!API_URL) {
-        document.getElementById("msg").innerText = "API not loaded";
-        return;
-    }
 
     const res = await fetch(API_URL + "/api/login.php", {
         method: "POST",
@@ -51,9 +60,13 @@ async function login() {
 
     const data = await res.json();
 
+    console.log(data);
+
     if (data.status === "success") {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", data.username);
+
+        console.log("REDIRECTING");
 
         window.location.href = "/app/wallet.html";
     } else {
