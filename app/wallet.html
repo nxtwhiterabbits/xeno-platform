@@ -2,50 +2,85 @@
 <html>
 <head>
   <title>XENO Wallet</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #0b0f1a;
+      color: white;
+      text-align: center;
+    }
+
+    .box {
+      max-width: 420px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: none;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .dep { background: #00ff88; }
+    .wd { background: #ff4d4d; color: white; }
+  </style>
 </head>
+
 <body>
 
-<h2>XENO WALLET</h2>
+<div class="box">
 
-<p>User: <span id="user">-</span></p>
-<p>Balance: <span id="balance">0</span> XENO</p>
+  <h2>💎 XENO WALLET</h2>
 
-<hr>
+  <p>User: <span id="user">-</span></p>
+  <h1>$ <span id="balance">0</span></h1>
 
-<input id="amount" type="number" placeholder="amount">
+  <input id="amount" type="number" placeholder="Amount">
 
-<button onclick="deposit()">Deposit</button>
-<button onclick="withdraw()">Withdraw</button>
+  <button class="dep" onclick="deposit()">Deposit</button>
+  <button class="wd" onclick="withdraw()">Withdraw</button>
 
-<br><br>
+  <button onclick="logout()">Logout</button>
 
-<button onclick="logout()">Logout</button>
+</div>
 
 <script>
 let API_URL = "";
-let token = null;
-let user = null;
+let token = localStorage.getItem("token");
+let user = localStorage.getItem("user");
 
 /* =========================
-   LOAD CONFIG + SESSION
+   LOAD CONFIG (WAJIB BETUL)
 ========================= */
 async function loadConfig() {
-    const res = await fetch("../config/config.json");
-    const config = await res.json();
+    try {
+        const res = await fetch("./config/config.json");
+        const config = await res.json();
 
-    API_URL = config.API_URL;
+        API_URL = config.API_URL;
 
-    token = localStorage.getItem("token");
-    user = localStorage.getItem("user");
+        console.log("API LOADED:", API_URL);
 
-    if (!token) {
-        window.location.href = "login.html";
-        return;
+        if (!token) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        document.getElementById("user").innerText = user;
+
+        loadBalance();
+
+    } catch (err) {
+        console.log("CONFIG ERROR", err);
     }
-
-    document.getElementById("user").innerText = user || "-";
-
-    loadBalance();
 }
 
 /* =========================
@@ -57,9 +92,6 @@ async function loadBalance() {
 
     if (data.status === "success") {
         document.getElementById("balance").innerText = data.balance;
-        document.getElementById("user").innerText = data.username;
-    } else {
-        document.getElementById("balance").innerText = "0";
     }
 }
 
@@ -101,9 +133,7 @@ function logout() {
     window.location.href = "login.html";
 }
 
-/* =========================
-   START
-========================= */
+/* START */
 loadConfig();
 </script>
 
