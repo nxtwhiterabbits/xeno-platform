@@ -22,16 +22,17 @@
 <button onclick="logout()">Logout</button>
 
 <script>
-const API_URL = "https://average-southampton-sponsor-musicians.trycloudflare.com";
-
+let API_URL = "";
 let token = localStorage.getItem("token");
-let user = localStorage.getItem("user");
 
-if (!token) {
-    window.location.href = "login.html";
+async function loadConfig() {
+    const res = await fetch("../config/config.json");
+    const config = await res.json();
+
+    API_URL = config.API_URL;
+
+    loadBalance();
 }
-
-document.getElementById("user").innerText = user;
 
 async function loadBalance() {
     const res = await fetch(API_URL + "/api/balance.php?token=" + token);
@@ -64,13 +65,8 @@ async function withdraw() {
     loadBalance();
 }
 
-function logout() {
-    localStorage.clear();
-    window.location.href = "login.html";
-}
-
-loadBalance();
+loadConfig();
 </script>
-
+  
 </body>
 </html>
