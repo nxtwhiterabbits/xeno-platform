@@ -10,71 +10,76 @@
 <input id="username" placeholder="username"><br>
 <input id="password" type="password" placeholder="password"><br>
 
-<button onclick="login()" id="btn">LOGIN</button>
+<button onclick="login()">LOGIN</button>
 
 <p id="msg"></p>
 
 <script>
 let API_URL = "";
-let ready = false;
 
 /* =========================
-   LOAD CONFIG (SAFE)
+   LOAD CONFIG FIRST (SAFE)
 ========================= */
 async function loadConfig() {
     try {
-        const res = await fetch("https://nxtwhiterabbits.github.io/xeno-platform/config/config.json");
+        const res = await fetch("../config/config.json");
         const config = await res.json();
-
         API_URL = config.API_URL;
-        ready = true;
 
-        console.log("API READY:", API_URL);
-
+        console.log("API LOADED:", API_URL);
     } catch (err) {
-        console.log("CONFIG FAIL", err);
-        document.getElementById("msg").innerText = "Config error";
+        console.log("CONFIG ERROR", err);
+        document.getElementById("msg").innerText = "Config failed";
     }
 }
 
 /* =========================
-   LOGIN
+   LOGIN FUNCTION
 ========================= */
 async function login() {
 
-    console.log("CLICKED");
+    console.log("LOGIN CLICKED");
 
-    if (!ready) {
-        document.getElementById("msg").innerText = "System loading...";
+    if (!API_URL) {
+        document.getElementById("msg").innerText = "API not ready";
         return;
     }
 
     const u = document.getElementById("username").value;
     const p = document.getElementById("password").value;
 
-    const res = await fetch(API_URL + "/api/login.php", {
-        method: "POST",
-        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: `username=${u}&password=${p}`
-    });
+    try {
+        const res = await fetch(API_URL + "/api/login.php", {
+            method: "POST",
+            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+            body: `username=${u}&password=${p}`
+        });
 
-    const data = await res.json();
+        const data = await res.json();
 
-    console.log(data);
+        console.log("LOGIN RESPONSE:", data);
 
-    if (data.status === "success") {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", data.username);
+        if (data.status === "success") {
 
-        console.log("REDIRECTING");
+            // SAVE SESSION
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", data.username);
 
-        window.location.href = "./wallet.html";
-    } else {
-        document.getElementById("msg").innerText = data.message;
+            console.log("REDIRECTING TO WALLET");
+
+            // IMPORTANT: relative path correct
+            window.location.href = "./wallet.html";
+
+        } else {
+            document.getElementById("msg").innerText = data.message;
+        }
+
+    } catch (err) {
+        console.log(err);
+        document.getElementById("msg").innerText = "API ERROR";
     }
 }
 
-/* START */
 loadConfig();
 </script>
 
