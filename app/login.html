@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>XENO Login</title>
+</head>
+<body>
+
+<h2>LOGIN XENO</h2>
+
+<input id="username" placeholder="username">
+<input id="password" type="password" placeholder="password">
+
+<button onclick="login()">Login</button>
+
+<p id="msg"></p>
+
+<script>
+const API_URL = "https://average-southampton-sponsor-musicians.trycloudflare.com";
+
+async function login() {
+    const u = document.getElementById("username").value;
+    const p = document.getElementById("password").value;
+
+    const res = await fetch(API_URL + "/api/login.php", {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: `username=${u}&password=${p}`
+    });
+
+    const data = await res.json();
+
+    if (data.status === "success") {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", data.username);
+        window.location.href = "wallet.html";
+    } else {
+        document.getElementById("msg").innerText = data.message;
+    }
+}
+</script>
+
+</body>
+</html>
