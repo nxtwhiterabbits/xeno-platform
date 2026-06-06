@@ -1,5 +1,5 @@
 let API_URL = "";
-let XID = "";
+let TOKEN = "";
 console.log("APP JS LOADED");
 
 /* =========================
@@ -7,17 +7,17 @@ console.log("APP JS LOADED");
 ========================= */
 async function loadConfig() {
     try {
-        console.log("[XENO] Loading config...");
-
         const res = await fetch("../config/config.json");
         const config = await res.json();
 
-        console.log("[XENO] Config:", config);
-
         API_URL = config.API_URL;
-        XID = config.XID;
 
-        document.getElementById("xid").innerText = XID;
+        TOKEN = localStorage.getItem("token");
+
+        if (!TOKEN) {
+            window.location.href = "./login.html";
+            return;
+        }
 
         loadBalance();
 
@@ -27,45 +27,47 @@ async function loadConfig() {
 }
 
 /* =========================
-   LOAD BALANCE (FIXED)
+   LOAD BALANCE (SECURE)
 ========================= */
 async function loadBalance() {
     try {
-        console.log("[XENO] Fetch balance...");
-
-        const res = await fetch(`${API_URL}/api/balance.php?xid=${XID}`);
+        const res = await fetch(`${API_URL}/api/balance.php?token=${TOKEN}`);
         const data = await res.json();
 
-        console.log("[XENO] Balance response:", data);
+        console.log("[XENO] Balance:", data);
 
-        // SAFE READ (IMPORTANT FIX)
-        const balance = data.balance ?? 0;
-
-        document.getElementById("balance").innerText = balance;
+        if (data.status === "success") {
+            document.getElementById("balance").innerText = data.balance;
+            document.getElementById("xid").innerText = data.xid;
+        } else {
+            console.error(data.message);
+        }
 
     } catch (err) {
         console.error("[XENO] Balance error:", err);
-        document.getElementById("balance").innerText = "0";
     }
 }
 
 /* =========================
-   DEPOSIT (FIXED)
+   DEPOSIT
 ========================= */
 async function deposit(amount) {
     try {
-        console.log("[XENO] Deposit:", amount);
-
-        await fetch(`${API_URL}/api/deposit.php`, {
+        const res = await fetch(`${API_URL}/api/deposit.php`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
             },
-            body: `xid=${XID}&amount=${amount}`
+            body: `token=${TOKEN}&amount=${amount}`
         });
 
-        // refresh balance AFTER update
-        setTimeout(loadBalance, 300);
+        const data = await res.json();
+
+        if (data.status === "success") {
+            loadBalance();
+        } else {
+            console.error(data.message);
+        }
 
     } catch (err) {
         console.error("[XENO] Deposit error:", err);
@@ -73,22 +75,25 @@ async function deposit(amount) {
 }
 
 /* =========================
-   WITHDRAW (FIXED)
+   WITHDRAW
 ========================= */
 async function withdraw(amount) {
     try {
-        console.log("[XENO] Withdraw:", amount);
-
-        await fetch(`${API_URL}/api/withdraw.php`, {
+        const res = await fetch(`${API_URL}/api/withdraw.php`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
             },
-            body: `xid=${XID}&amount=${amount}`
+            body: `token=${TOKEN}&amount=${amount}`
         });
 
-        // refresh balance AFTER update
-        setTimeout(loadBalance, 300);
+        const data = await res.json();
+
+        if (data.status === "success") {
+            loadBalance();
+        } else {
+            console.error(data.message);
+        }
 
     } catch (err) {
         console.error("[XENO] Withdraw error:", err);
@@ -96,6 +101,6 @@ async function withdraw(amount) {
 }
 
 /* =========================
-   START SYSTEM
+   START
 ========================= */
 loadConfig();
