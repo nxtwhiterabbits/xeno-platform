@@ -1,36 +1,33 @@
-async function loadBalance() {
+async function loadConfig() {
 
     try {
 
-        const res = await request("/api/balance.php", {
-            method: "GET"
+        console.log("[CONFIG] loading...");
+
+        const res = await fetch("/config/config.json", {
+            cache: "no-store"
         });
 
-        document.getElementById("balance").innerText =
-            res.balance ?? 0;
+        if (!res.ok) {
+            throw new Error("config not found: " + res.status);
+        }
+
+        const config = await res.json();
+
+        console.log("[CONFIG OK]", config);
+
+        API_URL = config.API_URL;
+        XID = config.XID;
+
+        document.getElementById("user").innerText = user;
+
+        loadBalance();
 
     } catch (err) {
 
-        console.error("[WALLET] ERROR", err);
+        console.error("[CONFIG ERROR]", err);
 
-        document.getElementById("balance").innerText = "0";
+        document.getElementById("msg").innerText =
+            "Config error: " + err.message;
     }
-}
-
-async function deposit(amount) {
-
-    await request("/api/deposit.php", {
-        body: { amount }
-    });
-
-    loadBalance();
-}
-
-async function withdraw(amount) {
-
-    await request("/api/withdraw.php", {
-        body: { amount }
-    });
-
-    loadBalance();
 }
