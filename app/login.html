@@ -18,56 +18,54 @@
 let API_URL = "";
 
 /* =========================
-   LOAD CONFIG FIRST (SAFE)
+   LOAD CONFIG
 ========================= */
 async function loadConfig() {
     try {
-        const res = await fetch("../config/config.json");
+        const res = await fetch("./config/config.json");
         const config = await res.json();
+
         API_URL = config.API_URL;
 
         console.log("API LOADED:", API_URL);
+
     } catch (err) {
-        console.log("CONFIG ERROR", err);
+        console.log(err);
         document.getElementById("msg").innerText = "Config failed";
     }
 }
 
 /* =========================
-   LOGIN FUNCTION
+   LOGIN
 ========================= */
 async function login() {
-
-    console.log("LOGIN CLICKED");
 
     if (!API_URL) {
         document.getElementById("msg").innerText = "API not ready";
         return;
     }
 
-    const u = document.getElementById("username").value;
-    const p = document.getElementById("password").value;
+    const u = encodeURIComponent(document.getElementById("username").value);
+    const p = encodeURIComponent(document.getElementById("password").value);
 
     try {
-        const res = await fetch(API_URL + "/api/login.php", {
+        const res = await fetch(API_URL + "/api/auth/login.php", {
             method: "POST",
-            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
             body: `username=${u}&password=${p}`
         });
 
         const data = await res.json();
 
-        console.log("LOGIN RESPONSE:", data);
+        console.log(data);
 
         if (data.status === "success") {
 
-            // SAVE SESSION
             localStorage.setItem("token", data.token);
             localStorage.setItem("user", data.username);
 
-            console.log("REDIRECTING TO WALLET");
-
-            // IMPORTANT: relative path correct
             window.location.href = "./wallet.html";
 
         } else {
