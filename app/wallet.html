@@ -22,14 +22,13 @@
 <script>
 
 let API_URL = "";
-let READY = false;
 
+/* =========================
+   AUTH CHECK
+========================= */
 const token = localStorage.getItem("token");
 const user = localStorage.getItem("user");
 
-/* =========================
-   GUARD
-========================= */
 if (!token) {
     window.location.href = "./login.html";
 }
@@ -37,17 +36,16 @@ if (!token) {
 /* =========================
    INIT
 ========================= */
-window.addEventListener("load", async () => {
+window.addEventListener("load", () => {
 
     document.getElementById("user").innerText = user || "-";
 
-    await loadConfig();
-
+    loadConfig();
 });
 
 
 /* =========================
-   CONFIG (FIXED FOR GITHUB PAGES)
+   CONFIG LOAD
 ========================= */
 async function loadConfig() {
 
@@ -55,7 +53,6 @@ async function loadConfig() {
 
         console.log("[CONFIG] loading...");
 
-        // IMPORTANT FIX: relative path (NOT /config)
         const res = await fetch("./config/config.json", {
             cache: "no-store"
         });
@@ -66,17 +63,12 @@ async function loadConfig() {
 
         const config = await res.json();
 
-        console.log("[CONFIG OK]", config);
-
         API_URL = config.API_URL;
 
-        if (!API_URL) {
-            throw new Error("API_URL missing");
-        }
+        console.log("[CONFIG OK]", API_URL);
 
-        READY = true;
-
-        await loadBalance();
+        // langsung load balance (NO READY FLAG)
+        loadBalance();
 
     } catch (err) {
 
@@ -92,8 +84,6 @@ async function loadConfig() {
    BALANCE
 ========================= */
 async function loadBalance() {
-
-    if (!READY) return;
 
     try {
 
@@ -114,9 +104,7 @@ async function loadBalance() {
     } catch (err) {
 
         console.error(err);
-
-        document.getElementById("msg").innerText =
-            "Balance error";
+        document.getElementById("msg").innerText = "Balance error";
     }
 }
 
@@ -125,8 +113,6 @@ async function loadBalance() {
    DEPOSIT
 ========================= */
 async function deposit() {
-
-    if (!READY) return;
 
     const amount = document.getElementById("amount").value;
 
@@ -158,8 +144,6 @@ async function deposit() {
    WITHDRAW
 ========================= */
 async function withdraw() {
-
-    if (!READY) return;
 
     const amount = document.getElementById("amount").value;
 
