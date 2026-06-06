@@ -8,31 +8,25 @@ async function request(path, options = {}) {
 
     const token = localStorage.getItem("token");
 
-    const params = new URLSearchParams();
+    const payload = options.body || {};
 
-    if (options.body) {
-        for (const key in options.body) {
-            params.append(key, options.body[key]);
-        }
+    if (token && !path.includes("login")) {
+        payload.token = token;
     }
 
-    if (token) {
-        params.append("token", token);
-    }
-
-    console.log("[API REQUEST]", url);
-    console.log("[API BODY]", params.toString());
+    console.log("[REQ]", url, payload);
 
     const res = await fetch(url, {
         method: options.method || "POST",
         headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
+            "Content-Type": "application/json"
         },
-        body: params.toString()
+        body: JSON.stringify(payload)
     });
 
     const text = await res.text();
-    console.log("[API RAW]", text);
+
+    console.log("[RAW]", text);
 
     return JSON.parse(text);
 }
