@@ -19,7 +19,10 @@
 <p id="msg"></p>
 
 <script>
+
 let API_URL = "";
+let READY = false;
+
 const token = localStorage.getItem("token");
 const user = localStorage.getItem("user");
 
@@ -31,31 +34,74 @@ if (!token) {
 }
 
 /* =========================
-   LOAD CONFIG
+   INIT
+========================= */
+window.addEventListener("load", async () => {
+
+    document.getElementById("user").innerText = user;
+
+    await loadConfig();
+
+});
+
+
+/* =========================
+   CONFIG (FIXED PATH + DEBUG)
 ========================= */
 async function loadConfig() {
+
     try {
-        const res = await fetch("./config/config.json");
+
+        console.log("[CONFIG] loading...");
+
+        const res = await fetch("/config/config.json", {
+            cache: "no-store"
+        });
+
+        if (!res.ok) {
+            throw new Error("config not found: " + res.status);
+        }
+
         const config = await res.json();
 
         API_URL = config.API_URL;
 
-        document.getElementById("user").innerText = user;
+        if (!API_URL) {
+            throw new Error("API_URL missing");
+        }
 
-        loadBalance();
+        READY = true;
+
+        console.log("[CONFIG OK]", API_URL);
+
+        await loadBalance();
 
     } catch (err) {
-        document.getElementById("msg").innerText = "Config error";
+
+        console.error("[CONFIG ERROR]", err);
+
+        document.getElementById("msg").innerText =
+            "Config error: " + err.message;
     }
 }
 
+
 /* =========================
-   LOAD BALANCE
+   BALANCE
 ========================= */
 async function loadBalance() {
+
+    if (!READY) return;
+
     try {
-        const res = await fetch(`${API_URL}/api/balance.php?token=${token}`);
+
+        const res = await fetch(
+            `${API_URL}/api/balance.php?token=${token}`
+        );
+
         const data = await res.json();
+
+        console.log("[BALANCE]", data);
 
         if (data.status === "success") {
             document.getElementById("balance").innerText = data.balance;
@@ -64,19 +110,29 @@ async function loadBalance() {
         }
 
     } catch (err) {
-        document.getElementById("msg").innerText = "Balance error";
+
+        console.error(err);
+
+        document.getElementById("msg").innerText =
+            "Balance error";
     }
 }
+
 
 /* =========================
    DEPOSIT
 ========================= */
 async function deposit() {
+
+    if (!READY) return;
+
     const amount = document.getElementById("amount").value;
 
     const res = await fetch(`${API_URL}/api/deposit.php`, {
         method: "POST",
-        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
         body: `token=${token}&amount=${amount}`
     });
 
@@ -88,16 +144,22 @@ async function deposit() {
         document.getElementById("msg").innerText = data.message;
     }
 }
+
 
 /* =========================
    WITHDRAW
 ========================= */
 async function withdraw() {
+
+    if (!READY) return;
+
     const amount = document.getElementById("amount").value;
 
     const res = await fetch(`${API_URL}/api/withdraw.php`, {
         method: "POST",
-        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
         body: `token=${token}&amount=${amount}`
     });
 
@@ -109,6 +171,7 @@ async function withdraw() {
         document.getElementById("msg").innerText = data.message;
     }
 }
+
 
 /* =========================
    LOGOUT
@@ -118,7 +181,6 @@ function logout() {
     window.location.href = "./login.html";
 }
 
-loadConfig();
 </script>
 
 </body>
