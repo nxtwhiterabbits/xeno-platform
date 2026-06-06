@@ -1,7 +1,7 @@
 let API_URL = "";
 let APP_READY = false;
 
-async function bootstrap() {
+window.bootstrap = async function () {
 
     try {
         console.log("[BOOT] START");
@@ -32,4 +32,4 @@ async function bootstrap() {
 
         APP_READY = false;
     }
-}
+};
