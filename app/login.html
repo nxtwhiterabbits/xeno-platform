@@ -35,7 +35,13 @@ window.addEventListener("load", async () => {
     const msg = document.getElementById("msg");
 
     try {
+
         console.log("[UI] Boot start");
+
+        // 🔥 SAFETY CHECK
+        if (typeof bootstrap !== "function") {
+            throw new Error("bootstrap.js not loaded");
+        }
 
         await bootstrap();
 
@@ -44,11 +50,7 @@ window.addEventListener("load", async () => {
         console.log("[UI] APP_READY =", APP_READY);
         console.log("[UI] API_URL =", API_URL);
 
-        if (APP_READY) {
-            msg.innerText = "Ready";
-        } else {
-            msg.innerText = "System offline";
-        }
+        msg.innerText = APP_READY ? "Ready" : "System offline";
 
     } catch (err) {
 
