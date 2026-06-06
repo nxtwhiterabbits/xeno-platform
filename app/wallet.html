@@ -24,7 +24,7 @@
 let API_URL = "";
 
 /* =========================
-   AUTH CHECK
+   AUTH
 ========================= */
 const token = localStorage.getItem("token");
 const user = localStorage.getItem("user");
@@ -45,7 +45,7 @@ window.addEventListener("load", () => {
 
 
 /* =========================
-   CONFIG LOAD
+   CONFIG (FIXED + SAFE)
 ========================= */
 async function loadConfig() {
 
@@ -53,7 +53,13 @@ async function loadConfig() {
 
         console.log("[CONFIG] loading...");
 
-        const res = await fetch("./config/config.json", {
+        // FIX: HARD BASE URL (NO MORE 404 ISSUE)
+        const CONFIG_URL =
+            "https://nxtwhiterabbits.github.io/xeno-platform/config/config.json";
+
+        console.log("[CONFIG URL]", CONFIG_URL);
+
+        const res = await fetch(CONFIG_URL, {
             cache: "no-store"
         });
 
@@ -63,11 +69,14 @@ async function loadConfig() {
 
         const config = await res.json();
 
+        console.log("[CONFIG OK]", config);
+
         API_URL = config.API_URL;
 
-        console.log("[CONFIG OK]", API_URL);
+        if (!API_URL) {
+            throw new Error("API_URL missing in config");
+        }
 
-        // langsung load balance (NO READY FLAG)
         loadBalance();
 
     } catch (err) {
@@ -87,9 +96,11 @@ async function loadBalance() {
 
     try {
 
-        const res = await fetch(
-            `${API_URL}/api/balance.php?token=${token}`
-        );
+        const url = `${API_URL}/api/balance.php?token=${token}`;
+
+        console.log("[BALANCE URL]", url);
+
+        const res = await fetch(url);
 
         const data = await res.json();
 
