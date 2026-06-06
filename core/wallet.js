@@ -1,11 +1,20 @@
 async function loadBalance() {
 
-    const res = await request("/api/balance.php", {
-        method: "GET"
-    });
+    try {
 
-    document.getElementById("balance").innerText =
-        res.balance ?? 0;
+        const res = await request("/api/balance.php", {
+            method: "GET"
+        });
+
+        document.getElementById("balance").innerText =
+            res.balance ?? 0;
+
+    } catch (err) {
+
+        console.error("[WALLET] ERROR", err);
+
+        document.getElementById("balance").innerText = "0";
+    }
 }
 
 async function deposit(amount) {
