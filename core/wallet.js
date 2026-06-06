@@ -5,11 +5,9 @@ async function loadConfig() {
         console.log("[CONFIG] loading...");
 
         const res = await fetch(
-            "https://nxtwhiterabbits.github.io/xeno-platform/config/config.json",
-            {
-                cache: "no-store"
-            }
-        );
+  "https://nxtwhiterabbits.github.io/xeno-platform/config/config.json",
+  { cache: "no-store" }
+);
 
         if (!res.ok) {
             throw new Error("config not found: " + res.status);
