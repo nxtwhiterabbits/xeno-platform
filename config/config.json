@@ -1,3 +1,5 @@
 {
-  "API_URL": "https://cuisine-fort-production-essays.trycloudflare.com"
+  "API_URL": "https://cuisine-fort-production-essays.trycloudflare.com",
+  "AUTO_RETRY": true,
+  "TIMEOUT": 8000
 }
