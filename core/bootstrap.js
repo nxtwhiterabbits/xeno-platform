@@ -6,7 +6,7 @@ async function bootstrap() {
     try {
         console.log("[BOOT] loading config...");
 
-        const res = await fetch("./config/config.json");
+        const res = await fetch("../config/config.json");
         const config = await res.json();
 
         API_URL = config.API_URL;
