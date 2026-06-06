@@ -1,35 +1,105 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>XENO LOGIN PRO</title>
+    <meta charset="utf-8">
+    <title>XENO LOGIN PRO</title>
 </head>
 <body>
 
-<h2>LOGIN</h2>
+<h2>LOGIN XENO</h2>
 
-<input id="username"><br>
-<input id="password" type="password"><br>
+<input id="username" placeholder="Username">
+<br><br>
+
+<input id="password" type="password" placeholder="Password">
+<br><br>
 
 <button onclick="doLogin()">LOGIN</button>
 
-<p id="msg"></p>
+<p id="msg">Loading system...</p>
 
+<!-- CORE -->
 <script src="./core/bootstrap.js"></script>
 <script src="./core/apiClient.js"></script>
 <script src="./core/auth.js"></script>
 
 <script>
 
-bootstrap();
+let initDone = false;
 
+/* =========================
+   INIT SYSTEM
+========================= */
+window.addEventListener("load", async () => {
+
+    const msg = document.getElementById("msg");
+
+    try {
+        console.log("[UI] Boot start");
+
+        await bootstrap();
+
+        initDone = true;
+
+        console.log("[UI] APP_READY =", APP_READY);
+        console.log("[UI] API_URL =", API_URL);
+
+        if (APP_READY) {
+            msg.innerText = "Ready";
+        } else {
+            msg.innerText = "System offline";
+        }
+
+    } catch (err) {
+
+        console.error("[BOOT ERROR]", err);
+
+        msg.innerText = "Init failed: " + err.message;
+    }
+});
+
+
+/* =========================
+   LOGIN HANDLER
+========================= */
 async function doLogin() {
 
-    document.getElementById("msg").innerText = "Loading...";
+    const msg = document.getElementById("msg");
 
-    const u = document.getElementById("username").value;
-    const p = document.getElementById("password").value;
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
 
-    await login(u, p);
+    console.log("=== LOGIN CLICKED ===");
+    console.log("initDone =", initDone);
+    console.log("APP_READY =", APP_READY);
+    console.log("API_URL =", API_URL);
+
+    if (!initDone || !APP_READY) {
+        msg.innerText = "System not ready";
+        return;
+    }
+
+    if (!username || !password) {
+        msg.innerText = "Fill all fields";
+        return;
+    }
+
+    msg.innerText = "Loading...";
+
+    try {
+
+        const res = await login(username, password);
+
+        console.log("[LOGIN RESULT]", res);
+
+        msg.innerText = "Success";
+
+    } catch (err) {
+
+        console.error("[LOGIN ERROR]", err);
+
+        msg.innerText = err.message || "Login failed";
+    }
 }
 
 </script>
