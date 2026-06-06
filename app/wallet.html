@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
   <title>XENO WALLET</title>
 </head>
 <body>
@@ -38,7 +39,7 @@ if (!token) {
 ========================= */
 window.addEventListener("load", async () => {
 
-    document.getElementById("user").innerText = user;
+    document.getElementById("user").innerText = user || "-";
 
     await loadConfig();
 
@@ -46,7 +47,7 @@ window.addEventListener("load", async () => {
 
 
 /* =========================
-   CONFIG (FIXED PATH + DEBUG)
+   CONFIG (FIXED FOR GITHUB PAGES)
 ========================= */
 async function loadConfig() {
 
@@ -54,7 +55,8 @@ async function loadConfig() {
 
         console.log("[CONFIG] loading...");
 
-        const res = await fetch("/config/config.json", {
+        // IMPORTANT FIX: relative path (NOT /config)
+        const res = await fetch("./config/config.json", {
             cache: "no-store"
         });
 
@@ -64,6 +66,8 @@ async function loadConfig() {
 
         const config = await res.json();
 
+        console.log("[CONFIG OK]", config);
+
         API_URL = config.API_URL;
 
         if (!API_URL) {
@@ -71,8 +75,6 @@ async function loadConfig() {
         }
 
         READY = true;
-
-        console.log("[CONFIG OK]", API_URL);
 
         await loadBalance();
 
@@ -128,20 +130,26 @@ async function deposit() {
 
     const amount = document.getElementById("amount").value;
 
-    const res = await fetch(`${API_URL}/api/deposit.php`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: `token=${token}&amount=${amount}`
-    });
+    try {
 
-    const data = await res.json();
+        const res = await fetch(`${API_URL}/api/deposit.php`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: `token=${token}&amount=${amount}`
+        });
 
-    if (data.status === "success") {
-        loadBalance();
-    } else {
-        document.getElementById("msg").innerText = data.message;
+        const data = await res.json();
+
+        if (data.status === "success") {
+            loadBalance();
+        } else {
+            document.getElementById("msg").innerText = data.message;
+        }
+
+    } catch (err) {
+        document.getElementById("msg").innerText = "Deposit error";
     }
 }
 
@@ -155,20 +163,26 @@ async function withdraw() {
 
     const amount = document.getElementById("amount").value;
 
-    const res = await fetch(`${API_URL}/api/withdraw.php`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: `token=${token}&amount=${amount}`
-    });
+    try {
 
-    const data = await res.json();
+        const res = await fetch(`${API_URL}/api/withdraw.php`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: `token=${token}&amount=${amount}`
+        });
 
-    if (data.status === "success") {
-        loadBalance();
-    } else {
-        document.getElementById("msg").innerText = data.message;
+        const data = await res.json();
+
+        if (data.status === "success") {
+            loadBalance();
+        } else {
+            document.getElementById("msg").innerText = data.message;
+        }
+
+    } catch (err) {
+        document.getElementById("msg").innerText = "Withdraw error";
     }
 }
 
