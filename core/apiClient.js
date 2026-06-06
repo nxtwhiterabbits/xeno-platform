@@ -4,43 +4,35 @@ async function request(path, options = {}) {
         throw new Error("APP NOT READY");
     }
 
-    const token = localStorage.getItem("token");
-
-    const bodyObj = options.body || {};
-
-    if (token) {
-        bodyObj.token = token;
-    }
-
-    const body = new URLSearchParams(bodyObj);
-
     const url = API_URL + path;
 
-    console.log("[API] REQUEST =>", url);
+    const token = localStorage.getItem("token");
+
+    const params = new URLSearchParams();
+
+    if (options.body) {
+        for (const key in options.body) {
+            params.append(key, options.body[key]);
+        }
+    }
+
+    if (token) {
+        params.append("token", token);
+    }
+
+    console.log("[API REQUEST]", url);
+    console.log("[API BODY]", params.toString());
 
     const res = await fetch(url, {
         method: options.method || "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
         },
-        body: body.toString()
+        body: params.toString()
     });
 
     const text = await res.text();
+    console.log("[API RAW]", text);
 
-    console.log("[API] RAW RESPONSE =>", text);
-
-    let data;
-
-    try {
-        data = JSON.parse(text);
-    } catch (e) {
-        throw new Error("Invalid JSON from server");
-    }
-
-    if (data.status === "error" && data.message === "auth failed") {
-        logout();
-    }
-
-    return data;
+    return JSON.parse(text);
 }
