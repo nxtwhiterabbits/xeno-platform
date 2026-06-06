@@ -14,8 +14,9 @@
 
 <button onclick="deposit()">Deposit</button>
 <button onclick="withdraw()">Withdraw</button>
-
 <button onclick="logout()">Logout</button>
+
+<p id="msg"></p>
 
 <script>
 let API_URL = "";
@@ -23,7 +24,7 @@ const token = localStorage.getItem("token");
 const user = localStorage.getItem("user");
 
 /* =========================
-   GUARD (AUTO LOGIN CHECK)
+   GUARD
 ========================= */
 if (!token) {
     window.location.href = "./login.html";
@@ -33,25 +34,37 @@ if (!token) {
    LOAD CONFIG
 ========================= */
 async function loadConfig() {
-    const res = await fetch("../config/config.json");
-    const config = await res.json();
+    try {
+        const res = await fetch("./config/config.json");
+        const config = await res.json();
 
-    API_URL = config.API_URL;
+        API_URL = config.API_URL;
 
-    document.getElementById("user").innerText = user;
+        document.getElementById("user").innerText = user;
 
-    loadBalance();
+        loadBalance();
+
+    } catch (err) {
+        document.getElementById("msg").innerText = "Config error";
+    }
 }
 
 /* =========================
    LOAD BALANCE
 ========================= */
 async function loadBalance() {
-    const res = await fetch(API_URL + "/api/balance.php?token=" + token);
-    const data = await res.json();
+    try {
+        const res = await fetch(`${API_URL}/api/balance.php?token=${token}`);
+        const data = await res.json();
 
-    if (data.status === "success") {
-        document.getElementById("balance").innerText = data.balance;
+        if (data.status === "success") {
+            document.getElementById("balance").innerText = data.balance;
+        } else {
+            document.getElementById("msg").innerText = data.message;
+        }
+
+    } catch (err) {
+        document.getElementById("msg").innerText = "Balance error";
     }
 }
 
@@ -61,13 +74,19 @@ async function loadBalance() {
 async function deposit() {
     const amount = document.getElementById("amount").value;
 
-    await fetch(API_URL + "/api/deposit.php", {
+    const res = await fetch(`${API_URL}/api/deposit.php`, {
         method: "POST",
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
         body: `token=${token}&amount=${amount}`
     });
 
-    loadBalance();
+    const data = await res.json();
+
+    if (data.status === "success") {
+        loadBalance();
+    } else {
+        document.getElementById("msg").innerText = data.message;
+    }
 }
 
 /* =========================
@@ -76,13 +95,19 @@ async function deposit() {
 async function withdraw() {
     const amount = document.getElementById("amount").value;
 
-    await fetch(API_URL + "/api/withdraw.php", {
+    const res = await fetch(`${API_URL}/api/withdraw.php`, {
         method: "POST",
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
         body: `token=${token}&amount=${amount}`
     });
 
-    loadBalance();
+    const data = await res.json();
+
+    if (data.status === "success") {
+        loadBalance();
+    } else {
+        document.getElementById("msg").innerText = data.message;
+    }
 }
 
 /* =========================
