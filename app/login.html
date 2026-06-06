@@ -1,115 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>XENO LOGIN</title>
+  <title>XENO LOGIN PRO</title>
 </head>
 <body>
 
-<h2>LOGIN XENO</h2>
+<h2>LOGIN</h2>
 
-<input id="username" placeholder="username"><br>
-<input id="password" type="password" placeholder="password"><br>
+<input id="username"><br>
+<input id="password" type="password"><br>
 
-<button onclick="login()">LOGIN</button>
+<button onclick="doLogin()">LOGIN</button>
 
 <p id="msg"></p>
 
+<script src="./core/bootstrap.js"></script>
+<script src="./core/apiClient.js"></script>
+<script src="./core/auth.js"></script>
+
 <script>
-let API_URL = "";
-let configReady = false;
 
-/* =========================
-   LOAD CONFIG
-========================= */
-async function loadConfig() {
-    try {
-        console.log("[XENO] Loading config...");
+bootstrap();
 
-        const res = await fetch("./config/config.json");
+async function doLogin() {
 
-        if (!res.ok) {
-            throw new Error("Config not found");
-        }
+    document.getElementById("msg").innerText = "Loading...";
 
-        const config = await res.json();
+    const u = document.getElementById("username").value;
+    const p = document.getElementById("password").value;
 
-        API_URL = config.API_URL;
-        configReady = true;
-
-        console.log("[XENO] API LOADED:", API_URL);
-
-    } catch (err) {
-        console.error("[XENO] Config error:", err);
-        document.getElementById("msg").innerText = "Config failed";
-    }
+    await login(u, p);
 }
 
-/* =========================
-   LOGIN FUNCTION
-========================= */
-async function login() {
-
-    // BLOCK if config not ready
-    if (!configReady || !API_URL) {
-        document.getElementById("msg").innerText = "API not ready";
-        return;
-    }
-
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
-
-    if (!username || !password) {
-        document.getElementById("msg").innerText = "Fill all fields";
-        return;
-    }
-
-    const body = new URLSearchParams();
-    body.append("username", username);
-    body.append("password", password);
-
-    try {
-        console.log("[XENO] Sending login...");
-
-        const res = await fetch(API_URL + "/api/auth/login.php", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: body.toString()
-        });
-
-        const data = await res.json();
-
-        console.log("[XENO] LOGIN RESPONSE:", data);
-
-        if (data.status === "success") {
-
-            // SAVE SESSION
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("refresh_token", data.refresh_token);
-            localStorage.setItem("user", username);
-
-            document.getElementById("msg").innerText = "Login success";
-
-            // redirect
-            setTimeout(() => {
-                window.location.href = "./wallet.html";
-            }, 500);
-
-        } else {
-            document.getElementById("msg").innerText = data.message;
-        }
-
-    } catch (err) {
-        console.error("[XENO] Login error:", err);
-        document.getElementById("msg").innerText = "API ERROR";
-    }
-}
-
-/* =========================
-   INIT
-========================= */
-loadConfig();
 </script>
 
 </body>
